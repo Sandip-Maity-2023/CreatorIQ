@@ -1,0 +1,48 @@
+
+root:
+
+# Ignore Python cache
+echo "__pycache__/" >> .gitignore
+echo "*.pyc" >> .gitignore
+
+# Ignore virtual environment
+echo "venv/" >> .gitignore
+
+# Ignore environment files
+echo ".env" >> .gitignore
+
+# Ignore Node.js modules
+echo "node_modules/" >> .gitignore
+
+# Ignore build outputs
+echo "dist/" >> .gitignore
+echo "build/" >> .gitignore
+
+# Ignore editor configs
+echo ".vscode/" >> .gitignore
+echo ".idea/" >> .gitignore
+
+client:
+npm create vite@latest .
+
+
+server:
+mkdir backend && cd backend
+python -m venv venv
+# On Windows: venv\Scripts\activate | On Mac/Linux: source venv/bin/activate
+
+pip install fastapi uvicorn sqlalchemy alembic pydantic[email] python-jose[cryptography] passlib[bcrypt] pymongo redis celery requests
+
+backend/
+├── app/
+│   ├── __init__.py
+│   ├── main.py
+│   ├── config.py
+│   ├── database.py
+│   ├── models.py
+│   ├── auth.py
+│   └── routers/
+│       ├── __init__.py
+│       ├── auth_router.py
+│       └── analytics_router.py
+└── .env
