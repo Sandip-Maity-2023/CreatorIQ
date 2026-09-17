@@ -2,8 +2,7 @@ import React from 'react';
 import { 
   ArrowUpRight, 
   ArrowDownRight, 
-  TrendingUp, 
-  Sparkles 
+  TrendingUp
 } from 'lucide-react';
 
 const MetricCard = ({ title, value, change, isPositive = true, icon: Icon, color = "indigo", subtitle }) => {

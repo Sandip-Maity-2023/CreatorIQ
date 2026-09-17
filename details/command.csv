@@ -33,6 +33,11 @@ python -m venv venv
 
 pip install fastapi uvicorn sqlalchemy alembic pydantic[email] python-jose[cryptography] passlib[bcrypt] pymongo redis celery requests
 
+cd E:\CreatorIQ\server
+& venv\Scripts\Activate.ps1
+uvicorn app.main:app --reload --port 8001
+
+
 backend/
 ├── app/
 │   ├── __init__.py

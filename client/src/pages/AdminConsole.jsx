@@ -7,9 +7,7 @@ import {
   Activity, 
   Database, 
   Server, 
-  Key, 
-  CheckCircle2, 
-  AlertTriangle 
+  Key
 } from 'lucide-react';
 
 const AdminConsole = () => {

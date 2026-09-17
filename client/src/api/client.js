@@ -20,17 +20,10 @@ client.interceptors.request.use((config) => {
   return Promise.reject(error);
 });
 
-// Interceptor for 401 handling
+// Keep demo mode on the dashboard instead of redirecting to login.
 client.interceptors.response.use((response) => {
   return response;
 }, (error) => {
-  if (error.response && error.response.status === 401) {
-    if (!window.location.pathname.includes('/login')) {
-      localStorage.removeItem('creatoriq_token');
-      localStorage.removeItem('creatoriq_user');
-      window.location.href = '/login';
-    }
-  }
   return Promise.reject(error);
 });
 

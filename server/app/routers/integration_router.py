@@ -93,6 +93,8 @@ async def sync_account(
     account = db.query(SocialAccount).filter(SocialAccount.id == account_id).first()
     if not account:
         raise HTTPException(status_code=404, detail="Account not found")
+    if current_user.role != UserRole.ADMIN and account.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to sync this account")
     
     # Refresh stats
     if account.platform == "youtube":

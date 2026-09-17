@@ -8,29 +8,46 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem('creatoriq_token') || null);
   const [loading, setLoading] = useState(true);
 
-  // Restore user from storage or fetch profile
   useEffect(() => {
+    let ignore = false;
     const savedUser = localStorage.getItem('creatoriq_user');
-    if (savedUser && token) {
+
+    if (savedUser) {
       try {
         setUser(JSON.parse(savedUser));
       } catch (e) {
         console.error("Failed to parse stored user", e);
+        localStorage.removeItem('creatoriq_user');
       }
     }
+
     if (token) {
+      setLoading(true);
       client.get('/api/v1/auth/me')
         .then((res) => {
+          if (ignore) return;
           setUser(res.data);
           localStorage.setItem('creatoriq_user', JSON.stringify(res.data));
         })
         .catch(() => {
-          logout();
+          if (ignore) return;
+          localStorage.removeItem('creatoriq_token');
+          localStorage.removeItem('creatoriq_user');
+          setToken(null);
+          setUser(null);
         })
-        .finally(() => setLoading(false));
+        .finally(() => {
+          if (!ignore) setLoading(false);
+        });
     } else {
+      localStorage.removeItem('creatoriq_user');
+      setUser(null);
       setLoading(false);
     }
+
+    return () => {
+      ignore = true;
+    };
   }, [token]);
 
   const login = async (email, password) => {
@@ -66,7 +83,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const switchRoleDemo = async (targetEmail) => {
-    return login(targetEmail, "password123");
+    return login(targetEmail, 'password123');
   };
 
   return (

@@ -3,10 +3,8 @@ import client from '../api/client';
 import MetricCard from '../components/common/MetricCard';
 import { 
   DollarSign, 
-  TrendingUp, 
   Briefcase, 
   Plus, 
-  CheckCircle2, 
   Clock, 
   Tag 
 } from 'lucide-react';
@@ -225,8 +223,7 @@ const RevenueAnalytics = () => {
                     value={newDeal.amount}
                     onChange={(e) => setNewDeal({ ...newDeal, amount: e.target.value })}
                     className="w-full bg-slate-900 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500"
-                  >
-                  </input>
+                  />
                 </div>
               </div>
 

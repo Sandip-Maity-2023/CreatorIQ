@@ -5,8 +5,6 @@ import {
   Briefcase, 
   Users, 
   DollarSign, 
-  TrendingUp, 
-  Percent, 
   Award, 
   CheckCircle2 
 } from 'lucide-react';

@@ -1,33 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import client from '../api/client';
 import { 
   Radio, 
   ArrowRight, 
   Lock, 
   Mail, 
-  ShieldCheck, 
-  Sparkles,
-  Zap
+  Sparkles
 } from 'lucide-react';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('password123');
-  const [demoAccounts, setDemoAccounts] = useState([]);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    client.get('/api/v1/auth/demo-accounts')
-      .then((res) => {
-        setDemoAccounts(res.data);
-      })
-      .catch((e) => console.log('Demo accounts endpoint note', e));
-  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

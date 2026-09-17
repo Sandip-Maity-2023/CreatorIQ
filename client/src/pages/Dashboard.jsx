@@ -11,7 +11,6 @@ import {
   Plus,
   Sparkles,
   RefreshCw,
-  ExternalLink,
   CheckCircle2
 } from 'lucide-react';
 import { YoutubeIcon, InstagramIcon, LinkedinIcon } from '../components/common/SocialIcons';

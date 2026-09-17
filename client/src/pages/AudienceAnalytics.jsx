@@ -2,11 +2,8 @@ import React, { useState, useEffect } from 'react';
 import client from '../api/client';
 import DemographicsChart from '../components/charts/DemographicsChart';
 import { 
-  Users, 
   Globe2, 
-  Clock, 
-  TrendingUp, 
-  MapPin 
+  Clock
 } from 'lucide-react';
 
 const AudienceAnalytics = () => {

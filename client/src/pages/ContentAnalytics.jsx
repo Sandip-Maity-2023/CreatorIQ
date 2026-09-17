@@ -1,13 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import client from '../api/client';
 import { 
-  Video, 
-  Eye, 
-  Heart, 
-  MessageCircle, 
-  Share2, 
-  TrendingUp, 
-  Filter
+  TrendingUp
 } from 'lucide-react';
 import { YoutubeIcon, InstagramIcon, LinkedinIcon } from '../components/common/SocialIcons';
 
@@ -85,6 +79,11 @@ const ContentAnalytics = () => {
 
       {/* Posts Table Panel */}
       <div className="glass-panel overflow-hidden">
+        {loading && (
+          <div className="px-6 py-3 text-xs font-semibold text-slate-400 border-b border-white/5">
+            Refreshing content analytics...
+          </div>
+        )}
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead className="bg-slate-900/80 border-b border-white/5 text-[11px] uppercase tracking-wider text-slate-400 font-bold">

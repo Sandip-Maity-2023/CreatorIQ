@@ -1,22 +1,20 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import client from '../../api/client';
 import { 
-  Bell, 
-  Download, 
   FileSpreadsheet, 
   FileText, 
   LogOut, 
-  RefreshCw, 
   ChevronDown, 
   CheckCircle2, 
   Radio
 } from 'lucide-react';
 
-const Topbar = ({ onSyncSuccess }) => {
+const Topbar = () => {
   const { user, logout, switchRoleDemo } = useAuth();
+  const navigate = useNavigate();
   const [exporting, setExporting] = useState(false);
-  const [syncing, setSyncing] = useState(false);
   const [roleMenuOpen, setRoleMenuOpen] = useState(false);
   const [notification, setNotification] = useState(null);
 
@@ -59,7 +57,7 @@ const Topbar = ({ onSyncSuccess }) => {
   const handleRoleSwitch = async (email) => {
     setRoleMenuOpen(false);
     await switchRoleDemo(email);
-    window.location.reload();
+    navigate('/dashboard', { replace: true });
   };
 
   return (
@@ -148,7 +146,10 @@ const Topbar = ({ onSyncSuccess }) => {
             <span className="block text-[10px] text-slate-400">{user?.email}</span>
           </div>
           <button
-            onClick={logout}
+            onClick={() => {
+              logout();
+              navigate('/login', { replace: true });
+            }}
             className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
             title="Sign out"
           >
