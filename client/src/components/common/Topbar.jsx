@@ -19,7 +19,7 @@ const Topbar = () => {
   const [notification, setNotification] = useState(null);
 
   const demoRoles = [
-    { role: 'Creator', email: 'creator@creatoriq.com', label: 'Content Creator (Alex)' },
+    { role: 'Creator', email: 'creator@creatoriq.com', label: 'Content Creator (Sandip)' },
     { role: 'Agency', email: 'agency@creatoriq.com', label: 'Influencer Agency' },
     { role: 'Marketing Team', email: 'marketing@creatoriq.com', label: 'Marketing Team' },
     { role: 'Administrator', email: 'admin@creatoriq.com', label: 'Administrator' }

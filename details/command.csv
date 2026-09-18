@@ -1,3 +1,22 @@
+https://developers.facebook.com/apps/1390995952569026/settings/advanced/
+
+https://www.linkedin.com/developers/apps/264797271/products?refreshKey=0
+
+https://www.linkedin.com/developers/tools/oauth/token-generator?clientId=77cif63miunt8p&refreshKey=1789639401501
+
+https://developers.google.com/youtube/v3/docs/?apix=true
+
+
+echo "server/.env" >> .gitignore
+echo "client/.env" >> .gitignore
+
+
+git rm --cached server/.env
+git rm --cached client/.env
+
+echo "__pycache__/" >> .gitignore
+git rm -r --cached "server/app/tasks/__pycache__"
+
 
 root:
 
