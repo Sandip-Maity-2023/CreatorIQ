@@ -22,9 +22,9 @@ const RevenueAnalytics = () => {
     status: 'Completed'
   });
 
-  const fetchData = async () => {
+  const fetchData = async (showLoading = false) => {
     try {
-      setLoading(true);
+      if (showLoading) setLoading(true);
       const [sumRes, recRes] = await Promise.all([
         client.get('/api/v1/revenue/summary'),
         client.get('/api/v1/revenue/records')

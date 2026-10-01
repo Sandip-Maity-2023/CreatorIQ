@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 https://developers.facebook.com/apps/1390995952569026/settings/advanced/
 
 https://www.linkedin.com/developers/apps/264797271/products?refreshKey=0
@@ -18,8 +16,6 @@ git rm --cached client/.env
 
 echo "__pycache__/" >> .gitignore
 git rm -r --cached "server/app/tasks/__pycache__"
-
->>>>>>> infosys/sandip-creatorIQ
 
 root:
 
@@ -55,7 +51,6 @@ python -m venv venv
 
 pip install fastapi uvicorn sqlalchemy alembic pydantic[email] python-jose[cryptography] passlib[bcrypt] pymongo redis celery requests
 
-<<<<<<< HEAD
 creator-iq/
 ├── backend/
 │   ├── app/
@@ -114,14 +109,6 @@ creator-iq/
     │   └── index.css
     ├── package.json
     └── tailwind.config.js
-    
-=======
-cd E:\CreatorIQ\server
-& venv\Scripts\Activate.ps1
-uvicorn app.main:app --reload --port 8001
-
-
->>>>>>> infosys/sandip-creatorIQ
 backend/
 ├── app/
 │   ├── __init__.py

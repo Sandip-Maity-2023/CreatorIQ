@@ -15,9 +15,9 @@ const AdminConsole = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchAdminData = async () => {
+  const fetchAdminData = async (showLoading = false) => {
     try {
-      setLoading(true);
+      if (showLoading) setLoading(true);
       const [statRes, userRes] = await Promise.all([
         client.get('/api/v1/admin/system-stats'),
         client.get('/api/v1/admin/users')

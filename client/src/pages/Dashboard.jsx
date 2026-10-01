@@ -27,9 +27,9 @@ const Dashboard = () => {
   const [syncingId, setSyncingId] = useState(null);
   const [statusMsg, setStatusMsg] = useState('');
 
-  const loadData = async () => {
+  const loadData = async (showLoading = false) => {
     try {
-      setLoading(true);
+      if (showLoading) setLoading(true);
       const [ovRes, accRes, recRes] = await Promise.all([
         client.get('/api/v1/analytics/overview'),
         client.get('/api/v1/integrations/accounts'),

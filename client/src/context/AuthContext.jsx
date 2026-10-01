@@ -4,25 +4,22 @@ import client from '../api/client';
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => {
+    try {
+      const savedUser = localStorage.getItem('creatoriq_user');
+      return savedUser ? JSON.parse(savedUser) : null;
+    } catch {
+      localStorage.removeItem('creatoriq_user');
+      return null;
+    }
+  });
   const [token, setToken] = useState(localStorage.getItem('creatoriq_token') || null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(Boolean(token && !user));
 
   useEffect(() => {
     let ignore = false;
-    const savedUser = localStorage.getItem('creatoriq_user');
-
-    if (savedUser) {
-      try {
-        setUser(JSON.parse(savedUser));
-      } catch (e) {
-        console.error("Failed to parse stored user", e);
-        localStorage.removeItem('creatoriq_user');
-      }
-    }
 
     if (token) {
-      setLoading(true);
       client.get('/api/v1/auth/me')
         .then((res) => {
           if (ignore) return;
