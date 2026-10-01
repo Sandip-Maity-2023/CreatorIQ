@@ -1,11 +1,11 @@
-from .analytics_engine import calculate_engagement_rate, aggregate_creator_metrics
-from .export_service import generate_csv_report, generate_pdf_report
-from .recommendation_engine import generate_content_recommendations
+from .analytics_engine import AnalyticsEngine
+from .export_service import ExportService
+from .recommendation_engine import RecommendationEngine
+from .social_api_service import SocialApiService
 
 __all__ = [
-    "calculate_engagement_rate",
-    "aggregate_creator_metrics",
-    "generate_csv_report",
-    "generate_pdf_report",
-    "generate_content_recommendations",
+    "AnalyticsEngine",
+    "ExportService",
+    "RecommendationEngine",
+    "SocialApiService",
 ]
