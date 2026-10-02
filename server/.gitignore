@@ -2,3 +2,7 @@
 venv
 dist
 node_modules
+server/venv
+
+/__pycache__
+

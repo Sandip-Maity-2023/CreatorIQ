@@ -3,7 +3,7 @@ import httpx
 from starlette.testclient import TestClient
 from app.main import app
 
-BASE_URL = "http://localhost:8000"
+BASE_URL = process.env.BASE_URL;
 
 def get_client():
     try:

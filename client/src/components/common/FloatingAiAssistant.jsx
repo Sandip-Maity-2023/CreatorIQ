@@ -18,7 +18,7 @@ const FloatingAiAssistant = () => {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      text: "👋 Hi! I'm your **CreatorIQ AI Strategist**.\n\nAsk me anything about algorithm reach, content hooks, video retention, sponsorship pricing, or audience growth!",
+      text: "👋 Hi! I'm your CreatorIQ AI Strategist.\n\nAsk me anything about algorithm reach, content hooks, video retention, sponsorship pricing, or audience growth!",
       source: 'CreatorIQ Strategic Engine'
     }
   ]);
@@ -154,22 +154,20 @@ const FloatingAiAssistant = () => {
           <div className="flex border-b border-white/10 bg-slate-900/50">
             <button
               onClick={() => setActiveTab('chat')}
-              className={`flex-1 py-2.5 text-xs font-bold transition-colors flex items-center justify-center gap-2 border-b-2 ${
-                activeTab === 'chat'
+              className={`flex-1 py-2.5 text-xs font-bold transition-colors flex items-center justify-center gap-2 border-b-2 ${activeTab === 'chat'
                   ? 'border-indigo-500 text-indigo-400 bg-white/5'
                   : 'border-transparent text-slate-400 hover:text-slate-200'
-              }`}
+                }`}
             >
               <Bot className="w-3.5 h-3.5" />
               Strategic Q&A Chat
             </button>
             <button
               onClick={() => setActiveTab('analyze')}
-              className={`flex-1 py-2.5 text-xs font-bold transition-colors flex items-center justify-center gap-2 border-b-2 ${
-                activeTab === 'analyze'
+              className={`flex-1 py-2.5 text-xs font-bold transition-colors flex items-center justify-center gap-2 border-b-2 ${activeTab === 'analyze'
                   ? 'border-indigo-500 text-indigo-400 bg-white/5'
                   : 'border-transparent text-slate-400 hover:text-slate-200'
-              }`}
+                }`}
             >
               <Flame className="w-3.5 h-3.5 text-amber-400" />
               Analyze Post & Hook
@@ -186,11 +184,10 @@ const FloatingAiAssistant = () => {
                     className={`flex flex-col ${m.role === 'user' ? 'items-end' : 'items-start'}`}
                   >
                     <div
-                      className={`max-w-[85%] rounded-2xl p-3.5 leading-relaxed whitespace-pre-wrap ${
-                        m.role === 'user'
+                      className={`max-w-[85%] rounded-2xl p-3.5 leading-relaxed whitespace-pre-wrap ${m.role === 'user'
                           ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-br-sm'
                           : 'glass-card border border-white/10 text-slate-200 rounded-bl-sm'
-                      }`}
+                        }`}
                     >
                       {m.text}
                     </div>

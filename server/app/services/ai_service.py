@@ -74,7 +74,7 @@ class GeminiAiService:
         # 1. Greetings & Introductions
         if clean_p in ["hi", "hello", "hey", "hola", "sup", "greetings", "good morning", "good evening", "who are you"]:
             reply = (
-                f"### 👋 Hello! I'm your **CreatorIQ AI Strategist**\n\n"
+                f" 👋 Hello! I'm your **CreatorIQ AI Strategist**\n\n"
                 f"Welcome! As a **{role}**, I'm actively monitoring your multi-platform growth across YouTube, Instagram, and LinkedIn. "
                 f"Your channels currently command a blended reach of **{followers}** and **{views}** views.\n\n"
                 "**How can I help you scale today? Here are top actions:**\n"
@@ -87,7 +87,7 @@ class GeminiAiService:
         # 2. Viral Algorithm & Retention Strategies
         elif any(w in clean_p for w in ["retention", "hook", "intro", "drop off", "3 second", "watch time"]):
             reply = (
-                "### 🎯 The 3-Second Retention Mastery Blueprint\n\n"
+                " 🎯 The 3-Second Retention Mastery Blueprint\n\n"
                 "- **The First 3.2 Seconds**: 68% of mobile viewers swipe away if the opening frame lacks motion. Start directly in the middle of the action—never open with *\"Hey guys, welcome back\"*.\n"
                 "- **Pattern Interrupt Intervals**: Add visual pacing shifts (camera zoom, on-screen kinetic typography, sound effect) every **4 to 6 seconds** to reset audience dopamine.\n"
                 "- **Open Curiosity Loops**: State the burning question or tension in seconds 1-5, but withhold the payoff until 85% through the video.\n"
@@ -97,7 +97,7 @@ class GeminiAiService:
         # 3. Content Ideas & Topic Generation
         elif any(w in clean_p for w in ["idea", "topic", "what should i post", "suggest", "create next"]):
             reply = (
-                f"### 💡 4 High-Converting Content Formats for Your Audience\n\n"
+                f"💡 4 High-Converting Content Formats for Your Audience\n\n"
                 "1. **The Contrarian Reality Check**:\n"
                 "   - *Title Hook*: *\"Stop Doing This in 2026: Why Everything You Know Is Outdated\"*\n"
                 "   - *Format*: YouTube 8-min Deep Dive + 60s Reel Highlight.\n"
@@ -114,7 +114,7 @@ class GeminiAiService:
         # 4. Sponsorship & Monetization
         elif any(w in clean_p for w in ["revenue", "sponsor", "money", "cpm", "deal", "charge", "rate"]):
             reply = (
-                "### 💰 Sponsorship & Monetization Valuation Engine\n\n"
+                " 💰 Sponsorship & Monetization Valuation Engine\n\n"
                 "- **Dedicated YouTube Video Rate**: **$45 - $65 CPM** based on your tech & creator demographics (e.g. 50k expected views = **$2,250 - $3,250** per video).\n"
                 "- **60s Mid-Roll Integration**: **$18 - $28 CPM** (e.g. 50k views = **$900 - $1,400**).\n"
                 "- **Omni-Channel Bundle Multiplier**: Never sell a standalone post. Bundle 1 YouTube Video + 1 Instagram Reel + 1 LinkedIn Post for **35% higher contract value**.\n"
@@ -124,7 +124,7 @@ class GeminiAiService:
         # 5. Algorithm & Reach Dynamics
         elif any(w in clean_p for w in ["algorithm", "reach", "viral", "browse", "fyp", "shadowban"]):
             reply = (
-                "### ⚡ 2026 Platform Algorithmic Ranking Signals\n\n"
+                " ⚡ 2026 Platform Algorithmic Ranking Signals\n\n"
                 "- **YouTube Browse Features**: Click-Through Rate (CTR > 8.5%) paired with Average Percentage Viewed (APV > 55%) triggers homepage recommendation spikes.\n"
                 "- **Instagram & TikTok Re-share Velocity**: Direct message shares (DMs) carry **3.5x higher algorithmic weight** than simple likes.\n"
                 "- **Upload Cadence & Consistency**: Recommendation engines reward structured weekly patterns (e.g. Tuesday & Friday at 17:00 UTC) over erratic bulk posting."
@@ -133,7 +133,7 @@ class GeminiAiService:
         # 6. Channel Analytics & Performance Overview
         elif any(w in clean_p for w in ["stats", "analytics", "views", "subscribers", "how am i doing", "performance"]):
             reply = (
-                f"### 📊 CreatorIQ Real-Time Channel Telemetry\n\n"
+                f"📊 CreatorIQ Real-Time Channel Telemetry\n\n"
                 f"- **Blended Audience Reach**: **{followers}** cross-platform subscribers/followers\n"
                 f"- **Total Monthly Views**: **{views}**\n"
                 "- **Average Engagement Rate**: **7.64%** (Outperforming industry average of 3.2%)\n"
@@ -145,7 +145,7 @@ class GeminiAiService:
         else:
             clean_display_prompt = prompt.strip()[:80]
             reply = (
-                f"### 🧠 Creator Strategy Analysis: *\"{clean_display_prompt}\"*\n\n"
+                f"🧠 Creator Strategy Analysis: *\"{clean_display_prompt}\"*\n\n"
                 f"Based on real-time creator economy trends and algorithmic telemetry for **{role}s**:\n\n"
                 "- **High-Leverage Approach**: Anchor your strategy around high-intent audience signals rather than superficial vanity impressions. "
                 "Content that answers a specific burning question converts viewers to subscribers at a 2.8x higher rate.\n"
@@ -183,7 +183,7 @@ class GeminiAiService:
             seed = sum(ord(c) for c in clean_title)
             score = 65 + (seed % 30)
             reply = (
-                f"### Content Hook Analysis: \"{clean_title}\"\n\n"
+                f"Content Hook Analysis: \"{clean_title}\"\n\n"
                 f"- **Virality Score**: **{score}/100**\n"
                 "- **Hook Critique**: Strong concept. Needs higher emotional tension in the opening 4 words.\n"
                 "- **3 Alternative Title Hooks**:\n"
