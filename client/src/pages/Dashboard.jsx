@@ -11,9 +11,14 @@ import {
   Plus,
   Sparkles,
   RefreshCw,
-  CheckCircle2
+  CheckCircle2,
+  ExternalLink,
+  Search,
+  Trash2,
+  Sun
 } from 'lucide-react';
 import { YoutubeIcon, InstagramIcon, LinkedinIcon } from '../components/common/SocialIcons';
+import TrendingViralSection from '../components/common/TrendingViralSection';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -81,6 +86,19 @@ const Dashboard = () => {
     }
   };
 
+  const handleDisconnectAccount = async (id, handle) => {
+    if (!window.confirm(`Disconnect social account ${handle}?`)) return;
+    try {
+      await client.delete(`/api/v1/integrations/accounts/${id}`);
+      setStatusMsg(`Account ${handle} disconnected`);
+      setTimeout(() => setStatusMsg(''), 4000);
+      loadData();
+    } catch (e) {
+      console.error(e);
+      alert('Failed to disconnect account');
+    }
+  };
+
   const getPlatformIcon = (plat) => {
     switch (plat?.toLowerCase()) {
       case 'youtube': return <YoutubeIcon className="h-4 w-4 text-red-500" />;
@@ -125,14 +143,25 @@ const Dashboard = () => {
           </p>
         </div>
 
-        {/* Action Button: Connect Social Account */}
-        <div className="z-10">
+        {/* Action Buttons: Theme Toggle & Save Social Account */}
+        <div className="z-10 flex flex-wrap items-center gap-3">
+          <button
+            onClick={() => {
+              const isLight = document.documentElement.classList.toggle('light');
+              localStorage.setItem('creatoriq-theme', isLight ? 'light' : 'dark');
+            }}
+            className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-amber-400 text-xs font-semibold transition-all"
+            title="Toggle Light / Dark screen"
+          >
+            <Sun className="h-4 w-4 text-amber-400" />
+            <span>Switch Screen Mode</span>
+          </button>
           <button
             onClick={() => setConnectModalOpen(true)}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-bold shadow-lg shadow-indigo-500/20 transition-all"
           >
             <Plus className="h-4 w-4" />
-            Connect Social Channel
+            Save Social Media Account
           </button>
         </div>
 
@@ -191,28 +220,67 @@ const Dashboard = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {accounts.map((acc) => (
-            <div key={acc.id} className="glass-card p-4 flex items-center justify-between border border-white/5">
+            <div key={acc.id} className="glass-card p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border border-white/5 hover:border-indigo-500/30 transition-all">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-slate-800 border border-white/10">
+                <div className="p-2.5 rounded-xl bg-slate-800/80 border border-white/10">
                   {getPlatformIcon(acc.platform)}
                 </div>
                 <div>
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1.5 flex-wrap">
                     <span className="text-xs font-bold text-white">{acc.account_handle}</span>
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" title="Active Feed"></span>
+                    <span className="text-[10px] uppercase font-semibold tracking-wider px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                      {acc.platform}
+                    </span>
                   </div>
                   <span className="text-[11px] text-slate-400">{acc.follower_count.toLocaleString()} Followers</span>
                 </div>
               </div>
 
-              <button
-                onClick={() => handleSyncAccount(acc.id, acc.platform)}
-                disabled={syncingId === acc.id}
-                className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 hover:text-indigo-400 transition-colors"
-                title="Trigger Live Sync"
-              >
-                <RefreshCw className={`h-3.5 w-3.5 ${syncingId === acc.id ? 'animate-spin text-indigo-400' : ''}`} />
-              </button>
+              <div className="flex items-center gap-1.5 self-end sm:self-center">
+                {/* Free Google Search Redirection */}
+                <a
+                  href={acc.search_url || `https://www.google.com/search?q=${encodeURIComponent(acc.account_handle + ' ' + acc.platform)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 hover:text-amber-400 transition-colors flex items-center gap-1 text-[11px]"
+                  title="Search account on Google"
+                >
+                  <Search className="h-3.5 w-3.5" />
+                  <span className="hidden xl:inline text-[10px] font-medium">Google</span>
+                </a>
+
+                {/* Direct Platform Profile Redirection */}
+                <a
+                  href={acc.profile_url || acc.search_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 hover:text-indigo-200 border border-indigo-500/20 transition-colors flex items-center gap-1 text-[11px]"
+                  title="Open live social media profile"
+                >
+                  <ExternalLink className="h-3.5 w-3.5" />
+                  <span className="hidden xl:inline text-[10px] font-medium">Visit</span>
+                </a>
+
+                {/* Live Sync */}
+                <button
+                  onClick={() => handleSyncAccount(acc.id, acc.platform)}
+                  disabled={syncingId === acc.id}
+                  className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 hover:text-indigo-400 transition-colors"
+                  title="Trigger Live Sync"
+                >
+                  <RefreshCw className={`h-3.5 w-3.5 ${syncingId === acc.id ? 'animate-spin text-indigo-400' : ''}`} />
+                </button>
+
+                {/* Disconnect */}
+                <button
+                  onClick={() => handleDisconnectAccount(acc.id, acc.account_handle)}
+                  className="p-2 rounded-lg bg-white/5 hover:bg-rose-500/10 text-slate-400 hover:text-rose-400 transition-colors"
+                  title="Disconnect Channel"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -224,6 +292,9 @@ const Dashboard = () => {
         title="30-Day Multi-Platform Growth Trajectory" 
         subtitle="Automated API polling and subscriber analytics"
       />
+
+      {/* Live YouTube Trending & Viral Content Section */}
+      <TrendingViralSection />
 
       {/* AI Recommendations Module */}
       <div className="glass-panel p-6">
@@ -267,11 +338,13 @@ const Dashboard = () => {
             <form onSubmit={handleConnectAccount} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-slate-300 mb-1.5">Social Platform</label>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
                   {[
                     { id: 'youtube', label: 'YouTube', icon: YoutubeIcon, color: 'text-red-500' },
                     { id: 'instagram', label: 'Instagram', icon: InstagramIcon, color: 'text-pink-500' },
-                    { id: 'linkedin', label: 'LinkedIn', icon: LinkedinIcon, color: 'text-blue-500' }
+                    { id: 'tiktok', label: 'TikTok', icon: Activity, color: 'text-cyan-400' },
+                    { id: 'linkedin', label: 'LinkedIn', icon: LinkedinIcon, color: 'text-blue-500' },
+                    { id: 'twitter', label: 'X / Twitter', icon: Sparkles, color: 'text-slate-300' }
                   ].map((p) => {
                     const Icon = p.icon;
                     return (
@@ -279,14 +352,14 @@ const Dashboard = () => {
                         type="button"
                         key={p.id}
                         onClick={() => setSelectedPlatform(p.id)}
-                        className={`p-3 rounded-xl border flex flex-col items-center gap-1.5 transition-all ${
+                        className={`p-2.5 rounded-xl border flex flex-col items-center gap-1.5 transition-all ${
                           selectedPlatform === p.id 
                             ? 'bg-indigo-600/20 border-indigo-500 text-white' 
                             : 'bg-slate-900 border-white/5 text-slate-400 hover:bg-white/5'
                         }`}
                       >
-                        <Icon className={`h-5 w-5 ${p.color}`} />
-                        <span className="text-xs font-semibold">{p.label}</span>
+                        <Icon className={`h-4 w-4 ${p.color}`} />
+                        <span className="text-[11px] font-semibold">{p.label}</span>
                       </button>
                     );
                   })}

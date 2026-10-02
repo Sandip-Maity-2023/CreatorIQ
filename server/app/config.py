@@ -25,6 +25,10 @@ class Settings(BaseSettings):
     LINKEDIN_CLIENT_ID: str = os.getenv("LINKEDIN_CLIENT_ID", "")
     LINKEDIN_CLIENT_SECRET: str = os.getenv("LINKEDIN_CLIENT_SECRET", "")
 
+    # Free Social Tools & AI Keys
+    ZERNIO_API_KEY: str = os.getenv("ZERNIO_API_KEY", "")
+    GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
+
     class Config:
         env_file = ".env"
         extra = "ignore"

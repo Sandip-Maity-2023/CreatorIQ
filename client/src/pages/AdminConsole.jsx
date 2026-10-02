@@ -13,17 +13,20 @@ import {
 const AdminConsole = () => {
   const [stats, setStats] = useState(null);
   const [users, setUsers] = useState([]);
+  const [dbStatus, setDbStatus] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const fetchAdminData = async (showLoading = false) => {
     try {
       if (showLoading) setLoading(true);
-      const [statRes, userRes] = await Promise.all([
+      const [statRes, userRes, dbRes] = await Promise.all([
         client.get('/api/v1/admin/system-stats'),
-        client.get('/api/v1/admin/users')
+        client.get('/api/v1/admin/users'),
+        client.get('/api/v1/admin/database-status')
       ]);
       setStats(statRes.data);
       setUsers(userRes.data);
+      setDbStatus(dbRes.data);
     } catch (e) {
       console.error("Admin fetch error", e);
     } finally {
@@ -150,6 +153,105 @@ const AdminConsole = () => {
               <span className="inline-block mt-2 text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300">
                 Status: Operational
               </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Multi-Database Topology & Storage Purpose */}
+      <div className="glass-panel p-6">
+        <div className="flex items-center justify-between mb-2">
+          <div>
+            <h3 className="text-base font-bold text-white tracking-tight flex items-center gap-2">
+              <Database className="h-4 w-4 text-cyan-400" />
+              Multi-Database Architecture & Data Storage Specifications
+            </h3>
+            <p className="text-xs text-slate-400">Hybrid Polyglot Persistence: Specific data stored across SQLite, PostgreSQL, MongoDB, and Redis</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+          {/* SQLite Card */}
+          <div className="p-4 rounded-xl bg-slate-900/60 border border-white/5 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold text-white">1. SQLite</span>
+                <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                  dbStatus?.sqlite?.status?.includes('Active')
+                    ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                    : 'bg-slate-800 text-slate-400'
+                }`}>
+                  {dbStatus?.sqlite?.status || 'Active'}
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-400 mb-2">
+                <b>Data Stored:</b> Core relational ACID entities (Users, Passwords, RBAC Roles, Channels, Deals, Roster).
+              </p>
+            </div>
+            <div className="pt-2 border-t border-white/5 text-[10px] font-mono text-slate-500">
+              File: ./creatoriq.db
+            </div>
+          </div>
+
+          {/* PostgreSQL Card */}
+          <div className="p-4 rounded-xl bg-slate-900/60 border border-white/5 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold text-white">2. PostgreSQL</span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                  Production DB
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-400 mb-2">
+                <b>Data Stored:</b> High-concurrency production relational data, foreign keys, transactions, and user profiles.
+              </p>
+            </div>
+            <div className="pt-2 border-t border-white/5 text-[10px] font-mono text-slate-500">
+              Configured via POSTGRES_URL
+            </div>
+          </div>
+
+          {/* MongoDB Card */}
+          <div className="p-4 rounded-xl bg-slate-900/60 border border-white/5 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold text-white">3. MongoDB</span>
+                <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                  dbStatus?.mongodb?.status?.includes('Online')
+                    ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                    : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                }`}>
+                  {dbStatus?.mongodb?.status || 'Document Store'}
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-400 mb-2">
+                <b>Data Stored:</b> Raw unstructured JSON payloads from YouTube Data API v3, Instagram Graph API & viral snapshots.
+              </p>
+            </div>
+            <div className="pt-2 border-t border-white/5 text-[10px] font-mono text-slate-500">
+              Collection: raw_social_payloads
+            </div>
+          </div>
+
+          {/* Redis Card */}
+          <div className="p-4 rounded-xl bg-slate-900/60 border border-white/5 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold text-white">4. Redis</span>
+                <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                  dbStatus?.redis?.status?.includes('Online')
+                    ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                    : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                }`}>
+                  {dbStatus?.redis?.status || 'In-Memory Cache'}
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-400 mb-2">
+                <b>Data Stored:</b> Trending viral feeds cache (TTL 600s), real-time counters, Celery queue message broker.
+              </p>
+            </div>
+            <div className="pt-2 border-t border-white/5 text-[10px] font-mono text-slate-500">
+              Key: creatoriq:trending:*
             </div>
           </div>
         </div>

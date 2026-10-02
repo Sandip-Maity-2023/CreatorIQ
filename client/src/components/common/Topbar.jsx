@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import client from '../../api/client';
@@ -8,7 +8,9 @@ import {
   LogOut, 
   ChevronDown, 
   CheckCircle2, 
-  Radio
+  Radio,
+  Sun,
+  Moon
 } from 'lucide-react';
 
 const Topbar = () => {
@@ -17,6 +19,31 @@ const Topbar = () => {
   const [exporting, setExporting] = useState(false);
   const [roleMenuOpen, setRoleMenuOpen] = useState(false);
   const [notification, setNotification] = useState(null);
+  const [isLightMode, setIsLightMode] = useState(() => {
+    return localStorage.getItem('creatoriq-theme') === 'light';
+  });
+
+  useEffect(() => {
+    if (isLightMode) {
+      document.documentElement.classList.add('light');
+    } else {
+      document.documentElement.classList.remove('light');
+    }
+  }, [isLightMode]);
+
+  const toggleTheme = () => {
+    const nextMode = !isLightMode;
+    setIsLightMode(nextMode);
+    if (nextMode) {
+      document.documentElement.classList.add('light');
+      localStorage.setItem('creatoriq-theme', 'light');
+      showNotification('Switched to Light Mode');
+    } else {
+      document.documentElement.classList.remove('light');
+      localStorage.setItem('creatoriq-theme', 'dark');
+      showNotification('Switched to Dark Mode');
+    }
+  };
 
   const demoRoles = [
     { role: 'Creator', email: 'creator@creatoriq.com', label: 'Content Creator (Sandip)' },
@@ -35,12 +62,15 @@ const Topbar = () => {
       const downloadUrl = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = downloadUrl;
-      link.setAttribute('download', `CreatorIQ_Report_${new Date().toISOString().slice(0,10)}.${type}`);
+      const fileName = type === 'pdf' 
+        ? `CreatorIQ_Executive_Report_${new Date().toISOString().slice(0,10)}.pdf`
+        : `CreatorIQ_Telemetry_Data_${new Date().toISOString().slice(0,10)}.csv`;
+      link.setAttribute('download', fileName);
       document.body.appendChild(link);
       link.click();
       link.remove();
       
-      showNotification(`Downloaded ${type.toUpperCase()} executive export`);
+      showNotification(`Exported live data as ${type.toUpperCase()}`);
     } catch (e) {
       console.error("Export error", e);
       showNotification("Export generation failed");
@@ -101,6 +131,25 @@ const Topbar = () => {
             <span>CSV Export</span>
           </button>
         </div>
+
+        {/* Theme Switcher Toggle (Dark / Light) */}
+        <button
+          onClick={toggleTheme}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-slate-300 hover:text-amber-400 transition-all"
+          title={isLightMode ? "Switch to Dark Mode" : "Switch to Light Mode"}
+        >
+          {isLightMode ? (
+            <>
+              <Moon className="h-3.5 w-3.5 text-indigo-400" />
+              <span>Dark Mode</span>
+            </>
+          ) : (
+            <>
+              <Sun className="h-3.5 w-3.5 text-amber-400" />
+              <span>Light Mode</span>
+            </>
+          )}
+        </button>
 
         {/* Demo Role Switcher Menu */}
         <div className="relative">

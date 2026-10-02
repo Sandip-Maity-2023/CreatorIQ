@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.auth import get_current_user, require_roles
 from app.models import User, UserRole, RevenueRecord, AgencyClient
-from app.schemas import RevenueRecordCreate, RevenueRecordResponse, AgencyClientResponse
+from app.schemas import RevenueRecordCreate, RevenueRecordResponse, AgencyClientResponse, AgencyClientCreate
 
 router = APIRouter(prefix="/api/v1/revenue", tags=["Revenue"])
 
@@ -38,23 +38,49 @@ def add_revenue_record(
     db.refresh(record)
     return record
 
+@router.delete("/records/{record_id}")
+def delete_revenue_record(
+    record_id: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    query = db.query(RevenueRecord).filter(RevenueRecord.id == record_id)
+    if current_user.role == UserRole.CREATOR:
+        query = query.filter(RevenueRecord.user_id == current_user.id)
+    record = query.first()
+    if not record:
+        raise HTTPException(status_code=404, detail="Revenue deal not found")
+    db.delete(record)
+    db.commit()
+    return {"status": "success", "message": "Deal removed"}
+
 @router.get("/summary")
 def get_revenue_summary(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    records = db.query(RevenueRecord)
+    records_query = db.query(RevenueRecord)
     if current_user.role == UserRole.CREATOR:
-        records = records.filter(RevenueRecord.user_id == current_user.id)
-    all_records = records.all()
+        records_query = records_query.filter(RevenueRecord.user_id == current_user.id)
+    all_records = records_query.all()
 
-    total_revenue = sum(r.amount for r in all_records) or 38450.0
-    pending_revenue = sum(r.amount for r in all_records if r.status.lower() == "pending") or 6200.0
+    total_revenue = sum(r.amount for r in all_records)
+    pending_revenue = sum(r.amount for r in all_records if (r.status or "").lower() in ["pending", "processing"])
 
+    # Aggregate dynamically by source_type from actual DB records
+    source_sums = {}
+    for r in all_records:
+        stype = r.source_type or "Other"
+        source_sums[stype] = source_sums.get(stype, 0.0) + r.amount
+
+    total_calc = total_revenue if total_revenue > 0 else 1.0
     by_source = [
-        {"source": "Sponsorships", "amount": 25500.0, "percentage": 66},
-        {"source": "YouTube AdSense", "amount": 8450.0, "percentage": 22},
-        {"source": "Affiliates", "amount": 4500.0, "percentage": 12}
+        {
+            "source": k,
+            "amount": round(v, 2),
+            "percentage": round((v / total_calc) * 100, 1)
+        }
+        for k, v in source_sums.items()
     ]
 
     return {
@@ -72,3 +98,38 @@ def get_agency_roster(
 ):
     roster = db.query(AgencyClient).all()
     return roster
+
+@router.post("/agency/roster", response_model=AgencyClientResponse)
+def add_agency_client(
+    payload: AgencyClientCreate,
+    current_user: User = Depends(require_roles([UserRole.AGENCY, UserRole.ADMIN])),
+    db: Session = Depends(get_db)
+):
+    client = AgencyClient(
+        agency_id=current_user.id,
+        creator_id=current_user.id,
+        client_name=payload.client_name,
+        channel_handle=payload.channel_handle,
+        tier=payload.tier or "Tier 1 - VIP",
+        monthly_views=payload.monthly_views or 1000000,
+        commission_pct=payload.commission_pct or 15.0,
+        monthly_revenue=payload.monthly_revenue or 15000.0,
+        status=payload.status or "Active"
+    )
+    db.add(client)
+    db.commit()
+    db.refresh(client)
+    return client
+
+@router.delete("/agency/roster/{client_id}")
+def delete_agency_client(
+    client_id: str,
+    current_user: User = Depends(require_roles([UserRole.AGENCY, UserRole.ADMIN])),
+    db: Session = Depends(get_db)
+):
+    client = db.query(AgencyClient).filter(AgencyClient.id == client_id).first()
+    if not client:
+        raise HTTPException(status_code=404, detail="Client not found")
+    db.delete(client)
+    db.commit()
+    return {"status": "success", "message": "Client removed from roster"}

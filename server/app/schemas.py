@@ -45,6 +45,8 @@ class SocialAccountResponse(BaseModel):
     follower_count: int
     connected_at: datetime
     is_active: bool
+    profile_url: Optional[str] = None
+    search_url: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -87,6 +89,15 @@ class RevenueRecordResponse(BaseModel):
         from_attributes = True
 
 # Agency Schemas
+class AgencyClientCreate(BaseModel):
+    client_name: str
+    channel_handle: str
+    tier: Optional[str] = "Tier 1 - VIP"
+    monthly_views: Optional[int] = 1000000
+    commission_pct: Optional[float] = 15.0
+    monthly_revenue: Optional[float] = 15000.0
+    status: Optional[str] = "Active"
+
 class AgencyClientResponse(BaseModel):
     id: str
     client_name: str

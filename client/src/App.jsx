@@ -11,10 +11,12 @@ import AudienceAnalytics from './pages/AudienceAnalytics';
 import RevenueAnalytics from './pages/RevenueAnalytics';
 import AgencyWorkspace from './pages/AgencyWorkspace';
 import AdminConsole from './pages/AdminConsole';
+import SocialTools from './pages/SocialTools';
+import FloatingAiAssistant from './components/common/FloatingAiAssistant';
 
 const AppLayout = ({ children }) => {
   return (
-    <div className="min-h-screen bg-[#0b0f19] text-slate-100 flex">
+    <div className="min-h-screen bg-[#0b0f19] text-slate-100 flex relative">
       <Sidebar />
       <div className="flex-1 min-w-0">
         <Topbar />
@@ -22,6 +24,7 @@ const AppLayout = ({ children }) => {
           {children}
         </main>
       </div>
+      <FloatingAiAssistant />
     </div>
   );
 };
@@ -38,6 +41,7 @@ function App() {
             <Route path="/content" element={<AppLayout><ContentAnalytics /></AppLayout>} />
             <Route path="/audience" element={<AppLayout><AudienceAnalytics /></AppLayout>} />
             <Route path="/revenue" element={<AppLayout><RevenueAnalytics /></AppLayout>} />
+            <Route path="/tools" element={<AppLayout><SocialTools /></AppLayout>} />
           </Route>
 
           <Route element={<ProtectedRoute allowedRoles={['Agency', 'Administrator']} />}>

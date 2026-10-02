@@ -43,6 +43,12 @@ const Sidebar = () => {
       roles: ['Creator', 'Agency', 'Marketing Team', 'Administrator']
     },
     {
+      name: 'Free Social Tools',
+      path: '/tools',
+      icon: Zap,
+      roles: ['Creator', 'Agency', 'Marketing Team', 'Administrator']
+    },
+    {
       name: 'Agency Workspace',
       path: '/agency',
       icon: Briefcase,

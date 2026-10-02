@@ -6,7 +6,8 @@ import {
   Briefcase, 
   Plus, 
   Clock, 
-  Tag 
+  Tag,
+  Trash2
 } from 'lucide-react';
 
 const RevenueAnalytics = () => {
@@ -14,6 +15,7 @@ const RevenueAnalytics = () => {
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
   const [newDeal, setNewDeal] = useState({
     title: '',
     source_type: 'Sponsorship',
@@ -41,6 +43,20 @@ const RevenueAnalytics = () => {
   useEffect(() => {
     fetchData();
   }, []);
+
+  const handleDeleteDeal = async (recordId, title) => {
+    if (!window.confirm(`Are you sure you want to delete the contract "${title || 'Record'}"?`)) return;
+    try {
+      setDeletingId(recordId);
+      await client.delete(`/api/v1/revenue/records/${recordId}`);
+      await fetchData();
+    } catch (err) {
+      console.error('Failed to delete deal:', err);
+      alert('Error deleting contract record');
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   const handleAddDeal = async (e) => {
     e.preventDefault();
@@ -144,6 +160,7 @@ const RevenueAnalytics = () => {
                 <th className="px-6 py-4 text-right">Deal Value</th>
                 <th className="px-6 py-4 text-center">Status</th>
                 <th className="px-6 py-4 text-right">Date</th>
+                <th className="px-6 py-4 text-center">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5 text-slate-300">
@@ -171,6 +188,16 @@ const RevenueAnalytics = () => {
                   </td>
                   <td className="px-6 py-4 text-right text-xs text-slate-400">
                     {new Date(r.deal_date).toLocaleDateString()}
+                  </td>
+                  <td className="px-6 py-4 text-center">
+                    <button
+                      onClick={() => handleDeleteDeal(r.id, r.title)}
+                      disabled={deletingId === r.id}
+                      title="Delete contract"
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 transition-all disabled:opacity-50"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </td>
                 </tr>
               ))}

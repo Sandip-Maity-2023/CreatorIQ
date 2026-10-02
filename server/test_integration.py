@@ -7,10 +7,10 @@ BASE_URL = "http://localhost:8000"
 
 def get_client():
     try:
-        r = httpx.get(f"{BASE_URL}/health", timeout=1.0)
+        r = httpx.get(f"{BASE_URL}/health", timeout=2.0)
         if r.status_code == 200:
             print(f"[INFO] Connected to live server at {BASE_URL}")
-            return httpx.Client(base_url=BASE_URL)
+            return httpx.Client(base_url=BASE_URL, timeout=15.0)
     except Exception:
         pass
     print("[INFO] Testing with in-memory FastAPI TestClient")
@@ -119,7 +119,35 @@ def run_tests():
     assert r_stats.status_code == 200
     print("[PASS] Administrator RBAC /api/v1/admin/system-stats passed:", r_stats.json()["system_status"])
 
-    print("\n>>> ALL 15 AUTOMATED INTEGRATION TESTS PASSED SUCCESSFULLY! <<<")
+    # 16. Test Revenue Record Deletion
+    deal_id = r_deal.json()["id"]
+    r_del = client.delete(f"/api/v1/revenue/records/{deal_id}", headers=headers)
+    assert r_del.status_code == 200
+    print(f"[PASS] DELETE /api/v1/revenue/records/{deal_id} passed:", r_del.json()["message"])
+
+    # 17. Test Zernio Free Social Media Tools (Hashtag & Username)
+    r_hash = client.post("/api/v1/tools/hashtag-analytics", headers=headers, json={"hashtag": "techtrends", "platform": "instagram"})
+    assert r_hash.status_code == 200
+    assert "potential_reach" in r_hash.json()
+    print(f"[PASS] /api/v1/tools/hashtag-analytics passed (Reach: {r_hash.json()['potential_reach']:,}, Difficulty: {r_hash.json()['difficulty_score']})")
+
+    r_user = client.post("/api/v1/tools/username-availability", headers=headers, json={"username": "supercreator2026"})
+    assert r_user.status_code == 200
+    assert "networks" in r_user.json()
+    print(f"[PASS] /api/v1/tools/username-availability passed ({len(r_user.json()['networks'])} networks checked)")
+
+    # 18. Test Gemini AI Integration (Chat & Post Analyzer)
+    r_ai_chat = client.post("/api/v1/ai/chat", headers=headers, json={"prompt": "How can I improve my YouTube retention rate?"})
+    assert r_ai_chat.status_code == 200
+    assert "response" in r_ai_chat.json()
+    print("[PASS] /api/v1/ai/chat passed (Provider:", r_ai_chat.json().get("provider"), ")")
+
+    r_ai_post = client.post("/api/v1/ai/analyze-post", headers=headers, json={"title": "10 AI Tools That Feel Illegal To Know in 2026", "platform": "youtube"})
+    assert r_ai_post.status_code == 200
+    assert "virality_score" in r_ai_post.json()
+    print(f"[PASS] /api/v1/ai/analyze-post passed (Virality score: {r_ai_post.json()['virality_score']}/100)")
+
+    print("\n>>> ALL 18 AUTOMATED INTEGRATION TESTS PASSED SUCCESSFULLY! <<<")
 
 if __name__ == "__main__":
     run_tests()

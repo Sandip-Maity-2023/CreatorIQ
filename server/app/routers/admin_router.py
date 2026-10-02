@@ -51,3 +51,11 @@ def get_system_stats(
         "total_deals_processed": total_revenue_records,
         "active_api_keys": ["YouTube Data API v3", "Instagram Graph API", "LinkedIn REST v2"]
     }
+
+@router.get("/database-status")
+def get_db_status(
+    current_user: User = Depends(require_roles([UserRole.ADMIN])),
+):
+    from app.database import get_database_status
+    return get_database_status()
+
