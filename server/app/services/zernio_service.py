@@ -3,6 +3,7 @@ import httpx
 import logging
 from typing import Dict, Any, List
 from app.config import settings
+from app.database import save_raw_document
 
 logger = logging.getLogger("zernio_tools")
 
@@ -51,7 +52,7 @@ class ZernioService:
             f"#viral{clean_tag}"
         ]
 
-        return {
+        result = {
             "hashtag": f"#{clean_tag}",
             "platform": platform,
             "potential_reach": potential_reach,
@@ -65,6 +66,8 @@ class ZernioService:
             "related_hashtags": related,
             "niche_recommendation": f"Pair #{clean_tag} with 3 low-competition niche tags for 2.4x algorithmic reach."
         }
+        save_raw_document("hashtag_analytics_docs", result)
+        return result
 
     @classmethod
     async def check_username_availability(cls, username: str) -> Dict[str, Any]:
@@ -185,6 +188,12 @@ class ZernioService:
                 "engagement_rate": eng_rate,
                 "published_at": f"2026-03-{max(1, 28 - i*3):02d}T14:30:00Z"
             })
+        save_raw_document("raw_social_payloads", {
+            "platform": platform,
+            "handle": clean_handle,
+            "posts_count": len(posts),
+            "posts": posts
+        })
         return posts
 
     @classmethod

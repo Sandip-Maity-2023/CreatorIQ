@@ -356,6 +356,12 @@ class SocialApiService:
                                         "published_at": snippet.get("publishedAt")
                                     })
                                 if results:
+                                    save_raw_document("raw_social_payloads", {
+                                        "platform": "youtube",
+                                        "handle": clean_handle,
+                                        "videos_count": len(results),
+                                        "videos": results
+                                    })
                                     return results
             except Exception as e:
                 logger.warning(f"YouTube videos live fetch fallback: {e}")
@@ -391,4 +397,21 @@ class SocialApiService:
                 "published_at": f"2026-03-{max(1, 26 - i*4):02d}T16:00:00Z"
             })
         return results
+
+    @classmethod
+    async def fetch_instagram_posts(cls, handle: str, max_results: int = 8) -> List[Dict[str, Any]]:
+        """
+        Fetches live Instagram posts and metrics, saving raw payload in MongoDB.
+        """
+        from app.services.zernio_service import ZernioService
+        clean_handle = handle.replace("@", "").strip()
+        posts = await ZernioService.fetch_account_posts(clean_handle, platform="instagram")
+        save_raw_document("raw_social_payloads", {
+            "platform": "instagram",
+            "handle": clean_handle,
+            "posts_count": len(posts),
+            "posts": posts
+        })
+        return posts
+
 

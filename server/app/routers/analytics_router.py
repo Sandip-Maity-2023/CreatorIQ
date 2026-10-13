@@ -1,7 +1,7 @@
 from typing import List, Optional
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
-from app.database import get_db
+from app.database import get_db, log_audit_event
 from app.auth import get_current_user, require_roles
 from app.models import User, UserRole, ContentPost, SocialAccount
 from app.schemas import ContentPostResponse
@@ -68,6 +68,8 @@ async def sync_connected_content(
         plat = (acc.platform or "youtube").lower()
         if plat == "youtube":
             fetched = await SocialApiService.fetch_youtube_channel_videos(acc.account_handle, max_results=6)
+        elif plat == "instagram":
+            fetched = await SocialApiService.fetch_instagram_posts(acc.account_handle, max_results=6)
         else:
             fetched = await ZernioService.fetch_account_posts(acc.account_handle, platform=plat)
 
@@ -111,6 +113,14 @@ async def sync_connected_content(
             synced_items.append(p)
 
     db.commit()
+
+    log_audit_event(
+        action="CONTENT_SYNC",
+        user_id=current_user.id,
+        user_email=current_user.email,
+        details={"synced_posts": len(synced_items), "new_added": synced_count}
+    )
+
     return {
         "message": f"Successfully synchronized {len(synced_items)} live posts across connected accounts.",
         "new_posts_added": synced_count,
@@ -125,13 +135,15 @@ async def inspect_account_content(
 ):
     """
     Directly fetches live post-level engagement (actual views, likes, comments, shares, and engagement rate)
-    for any account handle across YouTube or Zernio-supported platforms.
+    for any account handle across YouTube or Instagram.
     """
     clean_handle = payload.handle.strip()
     plat = (payload.platform or "youtube").lower()
 
     if plat == "youtube":
         posts = await SocialApiService.fetch_youtube_channel_videos(clean_handle, max_results=8)
+    elif plat == "instagram":
+        posts = await SocialApiService.fetch_instagram_posts(clean_handle, max_results=8)
     else:
         posts = await ZernioService.fetch_account_posts(clean_handle, platform=plat)
 
@@ -140,6 +152,13 @@ async def inspect_account_content(
     total_comments = sum(p.get("comments", 0) for p in posts)
     total_shares = sum(p.get("shares", 0) for p in posts)
     avg_eng = round(sum(p.get("engagement_rate", 0) for p in posts) / max(len(posts), 1), 2)
+
+    log_audit_event(
+        action="CONTENT_INSPECT",
+        user_id=current_user.id,
+        user_email=current_user.email,
+        details={"handle": clean_handle, "platform": plat, "posts_count": len(posts)}
+    )
 
     return {
         "handle": clean_handle,

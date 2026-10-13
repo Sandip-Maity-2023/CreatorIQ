@@ -1,9 +1,13 @@
+from pydantic import BaseModel
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.database import get_db
+from app.database import get_db, log_audit_event
 from app.models import User, UserRole, SocialAccount, ContentPost, RevenueRecord, AgencyClient
 from app.auth import hash_password, verify_password, create_access_token, get_current_user
 from app.schemas import RegisterSchema, LoginSchema, TokenResponse, UserResponse
+
+class SwitchRoleSchema(BaseModel):
+    role: UserRole
 
 router = APIRouter(prefix="/api/v1/auth", tags=["Auth"])
 
@@ -123,6 +127,12 @@ def register(user_in: RegisterSchema, db: Session = Depends(get_db)):
         db.commit()
 
     token = create_access_token({"sub": user.id, "role": user.role.value, "email": user.email})
+    log_audit_event(
+        action="USER_REGISTER",
+        user_id=user.id,
+        user_email=user.email,
+        details={"role": user.role.value if hasattr(user.role, "value") else str(user.role)}
+    )
     return {
         "access_token": token,
         "token_type": "bearer",
@@ -134,13 +144,57 @@ def login(payload: LoginSchema, db: Session = Depends(get_db)):
     ensure_seed_data(db)
     user = db.query(User).filter(User.email == payload.email).first()
     if not user or not verify_password(payload.password, user.hashed_password):
+        log_audit_event(
+            action="LOGIN_FAILED",
+            user_email=payload.email,
+            status="FAILED",
+            details={"reason": "Invalid credentials"}
+        )
         raise HTTPException(status_code=401, detail="Invalid email or password")
     
     token = create_access_token({"sub": user.id, "role": user.role.value, "email": user.email})
+    log_audit_event(
+        action="USER_LOGIN",
+        user_id=user.id,
+        user_email=user.email,
+        details={"role": user.role.value if hasattr(user.role, "value") else str(user.role)}
+    )
     return {
         "access_token": token,
         "token_type": "bearer",
         "user": user
+    }
+
+@router.post("/switch-role", response_model=TokenResponse)
+def switch_active_role(
+    payload: SwitchRoleSchema,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Switches the active RBAC operational profile for the authenticated user,
+    maintaining user identity and recording the transition in the SQLite audit log.
+    """
+    old_role = current_user.role
+    current_user.role = payload.role
+    db.commit()
+    db.refresh(current_user)
+
+    log_audit_event(
+        action="ROLE_SWITCH",
+        user_id=current_user.id,
+        user_email=current_user.email,
+        details={
+            "from_role": old_role.value if hasattr(old_role, "value") else str(old_role),
+            "to_role": payload.role.value
+        }
+    )
+
+    token = create_access_token({"sub": current_user.id, "role": current_user.role.value, "email": current_user.email})
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "user": current_user
     }
 
 @router.get("/me", response_model=UserResponse)

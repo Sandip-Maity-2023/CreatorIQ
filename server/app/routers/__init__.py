@@ -6,6 +6,7 @@ from app.routers.report_router import router as report_router
 from app.routers.admin_router import router as admin_router
 from app.routers.tools_router import router as tools_router
 from app.routers.ai_router import router as ai_router
+from app.routers.database_router import router as database_router
 
 __all__ = [
     "auth_router",
@@ -15,5 +16,6 @@ __all__ = [
     "report_router",
     "admin_router",
     "tools_router",
-    "ai_router"
+    "ai_router",
+    "database_router"
 ]

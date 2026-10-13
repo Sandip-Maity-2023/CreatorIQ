@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm import Session
-from app.database import get_db
+from app.database import get_db, log_audit_event
 from app.auth import get_current_user
 from app.models import User, SocialAccount, ContentPost, RevenueRecord
 from app.services.analytics_engine import AnalyticsEngine
@@ -71,6 +71,13 @@ def export_pdf(
     role_str = current_user.role.value if hasattr(current_user.role, 'value') else str(current_user.role)
     filename = f"CreatorIQ_Report_{role_str}_{current_user.id[:6]}.pdf"
 
+    log_audit_event(
+        action="REPORT_EXPORT",
+        user_id=current_user.id,
+        user_email=current_user.email,
+        details={"format": "PDF", "filename": filename}
+    )
+
     return Response(
         content=pdf_bytes,
         media_type="application/pdf",
@@ -88,6 +95,13 @@ def export_csv(
     csv_text = ExportService.generate_csv_report(current_user, data)
     role_str = current_user.role.value if hasattr(current_user.role, 'value') else str(current_user.role)
     filename = f"CreatorIQ_Metrics_{role_str}_{current_user.id[:6]}.csv"
+
+    log_audit_event(
+        action="REPORT_EXPORT",
+        user_id=current_user.id,
+        user_email=current_user.email,
+        details={"format": "CSV", "filename": filename}
+    )
 
     return Response(
         content=csv_text,

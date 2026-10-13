@@ -1,5 +1,20 @@
 import os
+from pathlib import Path
+from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
+
+server_dir = Path(__file__).resolve().parent.parent
+possible_envs = [
+    server_dir / ".env",
+    Path.cwd() / "server" / ".env",
+    Path.cwd() / ".env"
+]
+env_file_path = None
+for p in possible_envs:
+    if p.exists():
+        load_dotenv(p)
+        env_file_path = str(p)
+        break
 
 class Settings(BaseSettings):
     SECRET_KEY: str = "CREATOR_IQ_SUPER_SECURE_JWT_SECRET_KEY_2026"
@@ -30,7 +45,7 @@ class Settings(BaseSettings):
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
 
     class Config:
-        env_file = ".env"
+        env_file = env_file_path or ".env"
         extra = "ignore"
 
 settings = Settings()

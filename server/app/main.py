@@ -9,7 +9,8 @@ from app.routers import (
     report_router,
     admin_router,
     tools_router,
-    ai_router
+    ai_router,
+    database_router
 )
 from app.routers.auth_router import ensure_seed_data
 
@@ -47,6 +48,7 @@ app.include_router(report_router)
 app.include_router(admin_router)
 app.include_router(tools_router)
 app.include_router(ai_router)
+app.include_router(database_router)
 
 @app.get("/")
 def root():

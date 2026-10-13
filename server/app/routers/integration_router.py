@@ -1,7 +1,7 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.database import get_db
+from app.database import get_db, log_audit_event
 from app.auth import get_current_user, require_roles
 from app.models import User, UserRole, SocialAccount
 from app.schemas import ConnectAccountSchema, SocialAccountResponse
@@ -136,6 +136,14 @@ async def connect_account(
     db.add(new_account)
     db.commit()
     db.refresh(new_account)
+
+    log_audit_event(
+        action="CHANNEL_CONNECT",
+        user_id=current_user.id,
+        user_email=current_user.email,
+        details={"platform": platform, "handle": handle, "followers": followers}
+    )
+
     return SocialAccountResponse(
         id=new_account.id,
         platform=new_account.platform,
@@ -173,6 +181,14 @@ async def sync_account(
 
     account.follower_count = res.get("followers", account.follower_count)
     db.commit()
+
+    log_audit_event(
+        action="CHANNEL_SYNC",
+        user_id=current_user.id,
+        user_email=current_user.email,
+        details={"platform": account.platform, "handle": account.account_handle, "latest_followers": account.follower_count}
+    )
+
     return {
         "status": "success",
         "message": f"Successfully synced live data for {account.platform.capitalize()} ({account.account_handle})",
@@ -192,6 +208,16 @@ def disconnect_account(
     if current_user.role != UserRole.ADMIN and account.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized to disconnect this account")
     
+    handle = account.account_handle
+    plat = account.platform
     db.delete(account)
     db.commit()
+
+    log_audit_event(
+        action="CHANNEL_DISCONNECT",
+        user_id=current_user.id,
+        user_email=current_user.email,
+        details={"platform": plat, "handle": handle}
+    )
+
     return {"status": "success", "message": "Channel disconnected"}

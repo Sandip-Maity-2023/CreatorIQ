@@ -110,12 +110,17 @@ const Sidebar = () => {
 
       {/* Role Badge Indicator */}
       <div className="p-4 m-4 rounded-xl bg-gradient-to-br from-indigo-950/40 to-slate-900 border border-indigo-500/20">
-        <div className="flex items-center gap-2 mb-1.5">
-          <Zap className="h-4 w-4 text-indigo-400" />
-          <span className="text-xs font-semibold text-slate-300">Active RBAC Profile</span>
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-1.5">
+            <Zap className="h-4 w-4 text-indigo-400" />
+            <span className="text-xs font-semibold text-slate-300">Active RBAC Profile</span>
+          </div>
+          <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold">
+            Login: {user?.loginRole || currentRole}
+          </span>
         </div>
         <div className="inline-block px-2.5 py-1 rounded-md text-xs font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-          {currentRole}
+          Viewing: {currentRole}
         </div>
         <p className="text-[11px] text-slate-500 mt-2">
           Permissions tuned dynamically per RBAC matrix.

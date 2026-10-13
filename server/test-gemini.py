@@ -10,3 +10,4 @@ stream = client.interactions.create(
 )
 for event in stream:
     print(event)
+

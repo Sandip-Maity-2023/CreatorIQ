@@ -8,13 +8,16 @@ import {
   LogOut, 
   ChevronDown, 
   CheckCircle2, 
-  Radio,
-  Sun,
-  Moon
+  Radio, 
+  Sun, 
+  Moon,
+  ShieldAlert,
+  RotateCcw,
+  UserCheck
 } from 'lucide-react';
 
 const Topbar = () => {
-  const { user, logout, switchRoleDemo } = useAuth();
+  const { user, logout, switchActiveRole, switchRoleDemo } = useAuth();
   const navigate = useNavigate();
   const [exporting, setExporting] = useState(false);
   const [roleMenuOpen, setRoleMenuOpen] = useState(false);
@@ -22,6 +25,9 @@ const Topbar = () => {
   const [isLightMode, setIsLightMode] = useState(() => {
     return localStorage.getItem('creatoriq-theme') === 'light';
   });
+
+  const loginRole = user?.loginRole || user?.role || 'Creator';
+  const currentActiveRole = user?.role || loginRole;
 
   useEffect(() => {
     if (isLightMode) {
@@ -45,11 +51,11 @@ const Topbar = () => {
     }
   };
 
-  const demoRoles = [
-    { role: 'Creator', email: 'creator@creatoriq.com', label: 'Content Creator (Sandip)' },
-    { role: 'Agency', email: 'agency@creatoriq.com', label: 'Influencer Agency' },
-    { role: 'Marketing Team', email: 'marketing@creatoriq.com', label: 'Marketing Team' },
-    { role: 'Administrator', email: 'admin@creatoriq.com', label: 'Administrator' }
+  const availableRoles = [
+    { role: 'Creator', label: 'Content Creator', desc: 'Personal Analytics & Integrations' },
+    { role: 'Agency', label: 'Influencer Agency', desc: 'Multi-Creator Client Roster' },
+    { role: 'Marketing Team', label: 'Marketing Team', desc: 'Brand ROI & Sponsorships' },
+    { role: 'Administrator', label: 'Administrator', desc: 'Platform Governance & Multi-DB' }
   ];
 
   const handleExport = async (type) => {
@@ -84,10 +90,16 @@ const Topbar = () => {
     setTimeout(() => setNotification(null), 3500);
   };
 
-  const handleRoleSwitch = async (email) => {
+  const handleRoleSwitch = async (newRole) => {
     setRoleMenuOpen(false);
-    await switchRoleDemo(email);
-    navigate('/dashboard', { replace: true });
+    await switchActiveRole(newRole);
+    showNotification(`Active RBAC role switched to ${newRole}`);
+  };
+
+  const handleResetToLoginRole = async () => {
+    setRoleMenuOpen(false);
+    await switchActiveRole(loginRole);
+    showNotification(`Reset back to your login role (${loginRole})`);
   };
 
   return (
@@ -100,9 +112,19 @@ const Topbar = () => {
         </div>
       )}
 
-      {/* Live System Status indicator */}
-      <div className="flex items-center gap-3">
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-medium text-emerald-400">
+      {/* Left side: Persistent Login Role indicator & Live Status */}
+      <div className="flex items-center gap-4">
+        {/* Permanent "Logged in as" role display - NEVER vanishes */}
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-800/90 border border-indigo-500/25 text-xs shadow-inner">
+          <UserCheck className="h-3.5 w-3.5 text-emerald-400" />
+          <span className="text-[11px] font-bold text-slate-400">Logged in as:</span>
+          <span className="font-extrabold text-emerald-400 bg-emerald-500/15 px-2.5 py-0.5 rounded-lg border border-emerald-500/30">
+            {loginRole}
+          </span>
+        </div>
+
+        {/* Live System Status indicator */}
+        <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-medium text-emerald-400">
           <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
           <span>APIs Live: YouTube &bull; Instagram &bull; LinkedIn</span>
         </div>
@@ -151,34 +173,88 @@ const Topbar = () => {
           )}
         </button>
 
-        {/* Demo Role Switcher Menu */}
+        {/* Dynamic RBAC Role Selector Menu */}
         <div className="relative">
           <button
             onClick={() => setRoleMenuOpen(!roleMenuOpen)}
-            className="flex items-center gap-2.5 px-3.5 py-1.5 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-xs font-semibold transition-all"
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
+              currentActiveRole !== loginRole
+                ? 'bg-purple-500/20 text-purple-200 border-purple-500/40 shadow-sm shadow-purple-500/20'
+                : 'bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
+            }`}
           >
             <Radio className="h-3.5 w-3.5" />
-            <span>Role: {user?.role || 'Switch'}</span>
+            <span>Role: {currentActiveRole}</span>
+            {currentActiveRole !== loginRole && (
+              <span className="text-[10px] bg-purple-500/30 text-purple-200 px-1.5 py-0.2 rounded-md font-bold">
+                Active View
+              </span>
+            )}
             <ChevronDown className="h-3.5 w-3.5 opacity-70" />
           </button>
 
           {roleMenuOpen && (
-            <div className="absolute right-0 mt-2 w-56 rounded-xl bg-[#111827] border border-white/10 shadow-2xl p-2 z-50">
-              <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-white/5 mb-1">
-                Switch Interactive Role (RBAC)
+            <div className="absolute right-0 mt-2 w-72 rounded-2xl bg-[#111827] border border-white/10 shadow-2xl p-2.5 z-50">
+              <div className="px-3 py-2 border-b border-white/5 mb-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                    Switch Active RBAC View
+                  </span>
+                  <span className="text-[10px] text-emerald-400 font-semibold">
+                    Login: {loginRole}
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  Your login identity is preserved while exploring any role.
+                </p>
               </div>
-              {demoRoles.map((r) => (
-                <button
-                  key={r.role}
-                  onClick={() => handleRoleSwitch(r.email)}
-                  className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-colors flex items-center justify-between ${
-                    user?.role === r.role ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:bg-white/5'
-                  }`}
-                >
-                  <span>{r.label}</span>
-                  {user?.role === r.role && <CheckCircle2 className="h-3.5 w-3.5" />}
-                </button>
-              ))}
+
+              <div className="space-y-1">
+                {availableRoles.map((r) => {
+                  const isCurrentActive = currentActiveRole === r.role;
+                  const isInitialLoginRole = loginRole === r.role;
+
+                  return (
+                    <button
+                      key={r.role}
+                      onClick={() => handleRoleSwitch(r.role)}
+                      className={`w-full text-left px-3 py-2 rounded-xl text-xs transition-colors flex items-center justify-between ${
+                        isCurrentActive 
+                          ? 'bg-indigo-600 text-white font-bold shadow-md shadow-indigo-600/30' 
+                          : 'text-slate-300 hover:bg-white/5'
+                      }`}
+                    >
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <span>{r.label}</span>
+                          {isInitialLoginRole && (
+                            <span className="text-[9px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold">
+                              Login Role
+                            </span>
+                          )}
+                        </div>
+                        <span className={`block text-[10px] ${isCurrentActive ? 'text-indigo-200' : 'text-slate-500'}`}>
+                          {r.desc}
+                        </span>
+                      </div>
+                      {isCurrentActive && <CheckCircle2 className="h-4 w-4 shrink-0 text-white" />}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Reset button if currently viewing a different role than login */}
+              {currentActiveRole !== loginRole && (
+                <div className="mt-2 pt-2 border-t border-white/5">
+                  <button
+                    onClick={handleResetToLoginRole}
+                    className="w-full text-left px-3 py-2 rounded-xl text-xs font-semibold text-emerald-400 hover:bg-emerald-500/10 border border-emerald-500/20 transition-colors flex items-center gap-2 justify-center"
+                  >
+                    <RotateCcw className="h-3.5 w-3.5" />
+                    <span>Reset View to Login Role ({loginRole})</span>
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -192,7 +268,11 @@ const Topbar = () => {
           />
           <div className="hidden md:block text-left">
             <span className="block text-xs font-bold text-white leading-tight">{user?.full_name || 'Creator'}</span>
-            <span className="block text-[10px] text-slate-400">{user?.email}</span>
+            <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
+              <span>{user?.email}</span>
+              <span className="text-slate-600">&bull;</span>
+              <span className="text-emerald-400 font-semibold">{loginRole}</span>
+            </div>
           </div>
           <button
             onClick={() => {
