@@ -6,7 +6,8 @@ https://www.linkedin.com/developers/tools/oauth/token-generator?clientId=77cif63
 
 https://developers.google.com/youtube/v3/docs/?apix=true
 
-
+git remote -v
+git remote
 echo "server/.env" >> .gitignore
 echo "client/.env" >> .gitignore
 
@@ -48,6 +49,8 @@ server:
 mkdir backend && cd backend
 python -m venv venv
 # On Windows: venv\Scripts\activate | On Mac/Linux: source venv/bin/activate
+uvicorn app.main:app --reload
+
 
 pip install fastapi uvicorn sqlalchemy alembic pydantic[email] python-jose[cryptography] passlib[bcrypt] pymongo redis celery requests
 
