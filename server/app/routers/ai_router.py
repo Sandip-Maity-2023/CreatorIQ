@@ -7,6 +7,8 @@ from app.services.ai_service import GeminiAiService
 
 router = APIRouter(prefix="/api/v1/ai", tags=["AI Intelligence"])
 
+# test
+
 class ChatRequest(BaseModel):
     prompt: str
     api_key: Optional[str] = None
